@@ -1,0 +1,2 @@
+import { json,localMode,localRequest,rawDb } from '@/lib/community-server';
+export async function GET(_request:Request,{params}:{params:Promise<{id:string}>}){try{const {id}=await params;if(!/^[a-zA-Z0-9_-]{1,100}$/.test(id))return json({error:'无效成果ID'},400);if(localMode())return await localRequest('/api/artifacts/'+id);const row=await rawDb().prepare('SELECT payload FROM community_artifacts WHERE id=?').bind(id).first<{payload:string}>();return row?json(JSON.parse(row.payload)):json({error:'成果尚未同步或不存在'},404);}catch{return json({error:'无法读取成果'},503);}}

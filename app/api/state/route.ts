@@ -1,0 +1,2 @@
+import { json,localMode,localRequest,rawDb } from '@/lib/community-server';
+export async function GET(){try{if(localMode())return await localRequest('/api/state');const row=await rawDb().prepare("SELECT payload,updated_at FROM community_snapshots WHERE id='current'").first<{payload:string,updated_at:string}>();if(!row)return json({error:'社区执行器尚未连接，当前没有运行数据。',status:'awaiting_engine'},503);return json({...JSON.parse(row.payload),cloud_updated_at:row.updated_at});}catch{return json({error:'社区执行器暂时无法连接，已保存数据不会丢失。'},503);}}

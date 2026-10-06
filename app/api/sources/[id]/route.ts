@@ -1,0 +1,2 @@
+import { json,localMode,localRequest,rawDb } from '@/lib/community-server';
+export async function GET(_request:Request,{params}:{params:Promise<{id:string}>}){try{const {id}=await params;if(!/^[a-zA-Z0-9_-]{1,100}$/.test(id))return json({error:'无效来源快照ID'},400);if(localMode())return await localRequest('/api/sources/'+id);const row=await rawDb().prepare('SELECT payload FROM community_sources WHERE id=?').bind(id).first<{payload:string}>();return row?json(JSON.parse(row.payload)):json({error:'来源快照尚未同步或不存在'},404);}catch{return json({error:'无法读取来源快照'},503);}}
